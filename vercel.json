@@ -1,9 +1,15 @@
 {
+    "$schema": "https://openapi.vercel.sh/vercel.json",
     "buildCommand": "npm run build",
     "outputDirectory": "dist",
     "devCommand": "npm run dev",
     "installCommand": "npm install",
     "framework": "vite",
+    "git": {
+        "deploymentEnabled": {
+            "main": true
+        }
+    },
     "rewrites": [
         {
             "source": "/(.*)",
@@ -38,8 +44,10 @@
             ]
         }
     ],
-    "env": {
-        "VITE_SUPABASE_URL": "@supabase_url",
-        "VITE_SUPABASE_ANON_KEY": "@supabase_anon_key"
+    "regions": [
+        "gru1"
+    ],
+    "functions": {
+        "maxDuration": 10
     }
 }
