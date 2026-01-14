@@ -1,0 +1,485 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    /* Futuristic Dark Mode Color System */
+    --background: 0 0% 4%;
+    --foreground: 0 0% 100%;
+    
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 100%;
+    
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 100%;
+    
+    /* Neon Green Primary */
+    --primary: 155 100% 50%;
+    --primary-foreground: 0 0% 4%;
+    
+    /* Hover Green */
+    --primary-hover: 155 100% 40%;
+    
+    --secondary: 0 0% 14%;
+    --secondary-foreground: 0 0% 100%;
+    
+    --muted: 0 0% 14%;
+    --muted-foreground: 220 9% 64%;
+    
+    --accent: 0 0% 14%;
+    --accent-foreground: 0 0% 100%;
+    
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 155 100% 50%;
+    
+    --radius: 0.5rem;
+    
+    /* Sidebar Gradient */
+    --sidebar-background: 0 0% 10%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 155 100% 50%;
+    --sidebar-primary-foreground: 0 0% 4%;
+    --sidebar-accent: 155 100% 50%;
+    --sidebar-accent-foreground: 0 0% 4%;
+    --sidebar-border: 0 0% 18%;
+    --sidebar-ring: 155 100% 50%;
+    
+    /* Template Colors */
+    --template-green: 155 100% 50%;
+    --template-blue: 213 100% 65%;
+    --template-purple: 250 89% 66%;
+    --template-orange: 25 95% 53%;
+    --template-gray: 0 0% 42%;
+    
+    /* Status Colors */
+    --success: 155 100% 50%;
+    --warning: 38 92% 50%;
+    --error: 0 72% 51%;
+    --info: 213 100% 65%;
+    
+    /* Glow Colors */
+    --glow-primary: 155 100% 50%;
+    --glow-opacity: 0.3;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+}
+
+@layer components {
+  /* Glassmorphism Effect */
+  .glass {
+    backdrop-filter: blur(12px);
+    background: rgba(26, 26, 26, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  /* Neon Glow Effect */
+  .neon-glow {
+    box-shadow: 
+      0 0 20px rgba(0, 255, 148, 0.3),
+      0 0 40px rgba(0, 255, 148, 0.1),
+      inset 0 0 10px rgba(0, 255, 148, 0.05);
+  }
+  
+  .neon-glow-intense {
+    box-shadow: 
+      0 0 30px rgba(0, 255, 148, 0.4),
+      0 0 60px rgba(0, 255, 148, 0.2),
+      inset 0 0 20px rgba(0, 255, 148, 0.05);
+  }
+  
+  .neon-text {
+    text-shadow: 0 0 20px rgba(0, 255, 148, 0.5);
+  }
+  
+  .neon-icon {
+    filter: drop-shadow(0 0 10px rgba(0, 255, 148, 0.5));
+  }
+  
+  /* Card Styles - Futuristic */
+  .futuristic-card {
+    background: linear-gradient(135deg, hsl(0 0% 10%) 0%, hsl(0 0% 14%) 100%);
+    border: 1px solid hsl(0 0% 18%);
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .futuristic-card:hover {
+    background: linear-gradient(135deg, hsl(0 0% 14%) 0%, hsl(0 0% 18%) 100%);
+    border-color: hsl(155 100% 50%);
+    transform: translateY(-4px);
+    box-shadow: 
+      0 0 30px rgba(0, 255, 148, 0.3),
+      0 10px 30px rgba(0, 0, 0, 0.5);
+  }
+  
+  /* Selection Card */
+  .selection-card {
+    background: linear-gradient(135deg, hsl(0 0% 10%) 0%, hsl(0 0% 14%) 100%);
+    border: 2px solid hsl(0 0% 18%);
+    border-radius: 12px;
+    padding: 24px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .selection-card:hover {
+    transform: translateY(-4px);
+    border-color: hsl(155 100% 50%);
+    box-shadow: 
+      0 0 30px rgba(0, 255, 148, 0.3),
+      0 10px 30px rgba(0, 0, 0, 0.5);
+    background: linear-gradient(135deg, hsl(0 0% 14%) 0%, hsl(0 0% 18%) 100%);
+  }
+  
+  .selection-card.selected {
+    border: 2px solid hsl(155 100% 50%);
+    background: linear-gradient(135deg, hsla(155, 100%, 50%, 0.1) 0%, hsla(155, 100%, 50%, 0.05) 100%);
+    box-shadow: 
+      0 0 40px rgba(0, 255, 148, 0.4),
+      inset 0 0 20px rgba(0, 255, 148, 0.05);
+  }
+  
+  /* Input Styles - Futuristic */
+  .futuristic-input {
+    background: linear-gradient(135deg, hsl(0 0% 10%) 0%, hsl(0 0% 14%) 100%);
+    border: 1px solid hsl(0 0% 18%);
+    border-radius: 8px;
+    padding: 14px 20px;
+    color: hsl(0 0% 100%);
+    font-size: 15px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .futuristic-input::placeholder {
+    color: hsl(220 9% 46%);
+    font-style: italic;
+  }
+  
+  .futuristic-input:focus {
+    border-color: hsl(155 100% 50%);
+    background: linear-gradient(135deg, hsl(0 0% 14%) 0%, hsl(0 0% 18%) 100%);
+    box-shadow: 0 0 20px rgba(0, 255, 148, 0.3);
+    outline: none;
+  }
+  
+  /* Button Styles - Futuristic */
+  .futuristic-btn-primary {
+    background: linear-gradient(135deg, hsl(155 100% 50%) 0%, hsl(155 100% 40%) 100%);
+    color: hsl(0 0% 4%);
+    font-weight: 600;
+    padding: 14px 32px;
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 4px 20px rgba(0, 255, 148, 0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .futuristic-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 30px rgba(0, 255, 148, 0.6);
+    background: linear-gradient(135deg, hsl(155 100% 40%) 0%, hsl(155 100% 45%) 100%);
+  }
+  
+  .futuristic-btn-primary:active {
+    transform: translateY(0);
+  }
+  
+  .futuristic-btn-secondary {
+    background: transparent;
+    color: hsl(220 9% 64%);
+    border: 2px solid hsl(0 0% 18%);
+    padding: 14px 32px;
+    border-radius: 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .futuristic-btn-secondary:hover {
+    color: hsl(0 0% 100%);
+    border-color: hsl(155 100% 50%);
+    box-shadow: 0 0 20px rgba(0, 255, 148, 0.2);
+  }
+  
+  .futuristic-btn-ghost {
+    background: transparent;
+    color: hsl(155 100% 50%);
+    text-decoration: none;
+    border: none;
+    transition: all 0.3s ease;
+  }
+  
+  .futuristic-btn-ghost:hover {
+    text-shadow: 0 0 10px rgba(0, 255, 148, 0.5);
+  }
+  
+  /* Sidebar Styles - Futuristic */
+  .futuristic-sidebar {
+    background: linear-gradient(180deg, hsl(0 0% 10%) 0%, hsl(0 0% 4%) 100%);
+    border-right: 1px solid hsl(0 0% 18%);
+  }
+  
+  .sidebar-item {
+    color: hsl(220 9% 64%);
+    padding: 14px 20px;
+    border-left: 3px solid transparent;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .sidebar-item:hover {
+    color: hsl(0 0% 100%);
+    background: rgba(0, 255, 148, 0.05);
+    border-left-color: hsl(155 100% 50%);
+  }
+  
+  .sidebar-item.active {
+    color: hsl(155 100% 50%);
+    background: linear-gradient(90deg, rgba(0, 255, 148, 0.15) 0%, transparent 100%);
+    border-left-color: hsl(155 100% 50%);
+    box-shadow: inset 0 0 20px rgba(0, 255, 148, 0.1);
+  }
+  
+  /* Progress Bar - Futuristic */
+  .futuristic-progress {
+    background: hsl(0 0% 10%);
+    height: 6px;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  
+  .futuristic-progress-bar {
+    background: linear-gradient(90deg, hsl(155 100% 50%) 0%, hsl(155 100% 40%) 100%);
+    height: 100%;
+    border-radius: 3px;
+    box-shadow: 0 0 15px rgba(0, 255, 148, 0.6);
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .futuristic-progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 2s infinite;
+  }
+  
+  /* Toggle Switch - Futuristic */
+  .futuristic-toggle {
+    width: 56px;
+    height: 28px;
+    border-radius: 14px;
+    background: hsl(0 0% 18%);
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .futuristic-toggle.on {
+    background: linear-gradient(90deg, hsl(155 100% 50%) 0%, hsl(155 100% 40%) 100%);
+    box-shadow: 0 0 20px rgba(0, 255, 148, 0.6);
+  }
+  
+  .futuristic-toggle-circle {
+    width: 24px;
+    height: 24px;
+    background: hsl(0 0% 100%);
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: all 0.3s ease;
+  }
+  
+  .futuristic-toggle.on .futuristic-toggle-circle {
+    left: 30px;
+    box-shadow: 0 0 20px rgba(0, 255, 148, 0.6), 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Checkbox - Futuristic */
+  .futuristic-checkbox {
+    width: 20px;
+    height: 20px;
+    border: 2px solid hsl(0 0% 18%);
+    background: transparent;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+  }
+  
+  .futuristic-checkbox.checked {
+    background: linear-gradient(135deg, hsl(155 100% 50%) 0%, hsl(155 100% 40%) 100%);
+    border-color: hsl(155 100% 50%);
+    box-shadow: 0 0 15px rgba(0, 255, 148, 0.5);
+  }
+  
+  /* Legacy card classes for compatibility */
+  .devzapp-card {
+    @apply futuristic-card;
+  }
+  
+  .devzapp-card-hover {
+    @apply futuristic-card;
+  }
+  
+  .devzapp-input {
+    @apply futuristic-input w-full;
+  }
+  
+  .devzapp-btn-primary {
+    @apply futuristic-btn-primary;
+  }
+  
+  .devzapp-btn-secondary {
+    @apply futuristic-btn-secondary;
+  }
+  
+  .devzapp-btn-ghost {
+    @apply futuristic-btn-ghost;
+  }
+  
+  .devzapp-sidebar {
+    @apply futuristic-sidebar;
+  }
+  
+  .devzapp-progress {
+    @apply futuristic-progress;
+  }
+  
+  .devzapp-progress-bar {
+    @apply futuristic-progress-bar;
+  }
+  
+  .devzapp-tab {
+    @apply sidebar-item flex items-center gap-3 text-sm rounded-lg;
+  }
+  
+  .devzapp-tab-active {
+    @apply sidebar-item active flex items-center gap-3 text-sm rounded-lg font-medium;
+  }
+  
+  .devzapp-tab-inactive {
+    @apply sidebar-item flex items-center gap-3 text-sm rounded-lg;
+  }
+  
+  /* Animations */
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+  
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 1; box-shadow: 0 0 20px rgba(0, 255, 148, 0.3); }
+    50% { opacity: 0.8; box-shadow: 0 0 30px rgba(0, 255, 148, 0.5); }
+  }
+  
+  @keyframes glow-pulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 148, 0.3); }
+    50% { box-shadow: 0 0 30px rgba(0, 255, 148, 0.5); }
+  }
+  
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes slide-in-right {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+  }
+  
+  @keyframes pulse-ring {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(1.5); opacity: 0; }
+  }
+  
+  .animate-fade-in-up {
+    animation: fade-in-up 0.4s ease-out forwards;
+  }
+  
+  .animate-slide-in-right {
+    animation: slide-in-right 0.3s ease-out forwards;
+  }
+  
+  .animate-shake {
+    animation: shake 0.4s ease-in-out;
+  }
+  
+  .animate-glow-pulse {
+    animation: glow-pulse 2s infinite;
+  }
+  
+  .animate-pulse-glow {
+    animation: pulse-glow 2s infinite;
+  }
+  
+  /* Stagger children animations */
+  .stagger-children > * {
+    opacity: 0;
+    animation: fade-in-up 0.4s ease-out forwards;
+  }
+  
+  .stagger-children > *:nth-child(1) { animation-delay: 0.05s; }
+  .stagger-children > *:nth-child(2) { animation-delay: 0.1s; }
+  .stagger-children > *:nth-child(3) { animation-delay: 0.15s; }
+  .stagger-children > *:nth-child(4) { animation-delay: 0.2s; }
+  .stagger-children > *:nth-child(5) { animation-delay: 0.25s; }
+  .stagger-children > *:nth-child(6) { animation-delay: 0.3s; }
+}
+
+/* Custom scrollbar - Futuristic */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(0 0% 10%);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(0 0% 24%);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(155 100% 50% / 0.5);
+}
