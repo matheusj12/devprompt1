@@ -18,7 +18,7 @@ import {
   Check
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/client.ts';
 import { AuthInput } from './AuthInput';
 import { AuthButton } from './AuthButton';
 import { useToast } from '@/hooks/use-toast';
