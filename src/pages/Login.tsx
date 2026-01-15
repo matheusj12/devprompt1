@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, Sparkles } from 'lucide-react';
+import { Mail, Lock, Sparkles, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { AuthBackground } from '@/components/auth/AuthBackground';
 import { AuthInput } from '@/components/auth/AuthInput';
@@ -20,19 +20,18 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
 
+    // Demo mode - any credentials work
     const { error } = await signIn(email, password);
 
     if (error) {
       toast({
         title: 'Erro ao entrar',
-        description: error.message === 'Invalid login credentials' 
-          ? 'Email ou senha incorretos'
-          : error.message,
+        description: 'Email ou senha incorretos. Use qualquer email/senha para modo demo.',
         variant: 'destructive',
       });
     } else {
       toast({
-        title: 'Bem-vindo de volta!',
+        title: 'Bem-vindo!',
         description: 'Login realizado com sucesso.',
       });
       navigate('/');
@@ -41,10 +40,21 @@ const Login = () => {
     setLoading(false);
   };
 
+  const handleDemoLogin = async () => {
+    setLoading(true);
+    await signIn('demo@devprompts.com', 'demo123');
+    toast({
+      title: 'Modo Demo Ativado!',
+      description: 'Você está usando o sistema em modo demonstração.',
+    });
+    navigate('/');
+    setLoading(false);
+  };
+
   return (
     <AuthBackground>
       <div className="w-full max-w-[450px] mx-auto px-4">
-        <div 
+        <div
           className="relative backdrop-blur-2xl rounded-3xl p-12 animate-fade-in"
           style={{
             background: 'linear-gradient(135deg, rgba(24,24,27,0.95), rgba(18,18,20,0.98))',
@@ -58,7 +68,7 @@ const Login = () => {
         >
           {/* Logo */}
           <div className="flex flex-col items-center mb-8">
-            <div 
+            <div
               className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#00FF94] to-[#00D97E] flex items-center justify-center mb-4"
               style={{
                 boxShadow: '0 8px 32px rgba(0,255,148,0.4)',
@@ -71,9 +81,23 @@ const Login = () => {
             </h1>
           </div>
 
+          {/* Demo Mode Alert */}
+          <div
+            className="flex items-center gap-3 mb-6 p-4 rounded-xl"
+            style={{
+              background: 'rgba(0,255,148,0.1)',
+              border: '1px solid rgba(0,255,148,0.2)',
+            }}
+          >
+            <AlertCircle className="w-5 h-5 text-[#00FF94] flex-shrink-0" />
+            <p className="text-sm text-gray-300">
+              <span className="text-[#00FF94] font-semibold">Modo Demo:</span> Use qualquer email/senha ou clique em "Entrar como Demo"
+            </p>
+          </div>
+
           {/* Title */}
-          <div className="text-center mb-10">
-            <h2 
+          <div className="text-center mb-8">
+            <h2
               className="text-3xl font-bold text-white mb-2"
               style={{ letterSpacing: '-0.02em' }}
             >
@@ -118,12 +142,11 @@ const Login = () => {
                     onChange={(e) => setRememberMe(e.target.checked)}
                     className="sr-only"
                   />
-                  <div 
-                    className={`w-5 h-5 rounded-md border-2 transition-all duration-200 flex items-center justify-center ${
-                      rememberMe 
-                        ? 'bg-[#00FF94] border-[#00FF94]' 
+                  <div
+                    className={`w-5 h-5 rounded-md border-2 transition-all duration-200 flex items-center justify-center ${rememberMe
+                        ? 'bg-[#00FF94] border-[#00FF94]'
                         : 'border-zinc-600 group-hover:border-zinc-500'
-                    }`}
+                      }`}
                   >
                     {rememberMe && (
                       <svg className="w-3 h-3 text-black" viewBox="0 0 12 12">
@@ -142,7 +165,7 @@ const Login = () => {
                 <span className="text-gray-300 text-sm">Lembrar-me</span>
               </label>
 
-              <Link 
+              <Link
                 to="/forgot-password"
                 className="text-[#00FF94] text-sm hover:underline transition-all"
               >
@@ -151,9 +174,9 @@ const Login = () => {
             </div>
 
             {/* Submit button */}
-            <AuthButton 
-              type="submit" 
-              loading={loading} 
+            <AuthButton
+              type="submit"
+              loading={loading}
               loadingText="Entrando..."
             >
               Entrar
@@ -161,7 +184,7 @@ const Login = () => {
           </form>
 
           {/* Divider */}
-          <div className="relative my-8">
+          <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-zinc-700" />
             </div>
@@ -170,8 +193,23 @@ const Login = () => {
             </div>
           </div>
 
+          {/* Demo Login Button */}
+          <button
+            type="button"
+            onClick={handleDemoLogin}
+            disabled={loading}
+            className="w-full py-4 px-6 rounded-xl text-base font-semibold transition-all duration-300 mb-4"
+            style={{
+              background: 'linear-gradient(135deg, rgba(0,255,148,0.15) 0%, rgba(0,255,148,0.05) 100%)',
+              border: '2px solid rgba(0,255,148,0.3)',
+              color: '#00FF94',
+            }}
+          >
+            🚀 Entrar como Demo
+          </button>
+
           {/* Create account button */}
-          <AuthButton 
+          <AuthButton
             variant="secondary"
             onClick={() => navigate('/register')}
           >
