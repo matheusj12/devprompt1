@@ -20,7 +20,7 @@ const Home = () => {
     if (!hasSeenWelcome && projects.length === 0) {
       setShowWelcome(true);
     }
-  }, [projects.length]);
+  }, []); // Run only once on mount
 
   const handleDismissWelcome = () => {
     localStorage.setItem('devprompts_welcome_seen', 'true');
