@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
-import type { User, Session } from '@supabase/supabase-js';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+
+// Check if Supabase is configured
+const SUPABASE_CONFIGURED = !!(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY);
 
 interface Profile {
   id: string;
@@ -34,6 +35,15 @@ interface UserRole {
   created_at: string;
 }
 
+interface User {
+  id: string;
+  email: string;
+}
+
+interface Session {
+  user: User;
+}
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
@@ -51,6 +61,48 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Mock user for demo mode
+const mockUser: User = {
+  id: 'demo-user-id',
+  email: 'demo@devprompts.com',
+};
+
+const mockSession: Session = {
+  user: mockUser,
+};
+
+const mockProfile: Profile = {
+  id: 'demo-profile-id',
+  user_id: 'demo-user-id',
+  email: 'demo@devprompts.com',
+  full_name: 'Usuário Demo',
+  avatar_url: null,
+  company_id: 'demo-company-id',
+  is_active: true,
+  last_login: new Date().toISOString(),
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+};
+
+const mockCompany: Company = {
+  id: 'demo-company-id',
+  name: 'Empresa Demo',
+  owner_id: 'demo-user-id',
+  logo_url: null,
+  plan: 'pro',
+  settings: {},
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+};
+
+const mockUserRole: UserRole = {
+  id: 'demo-role-id',
+  user_id: 'demo-user-id',
+  company_id: 'demo-company-id',
+  role: 'owner',
+  created_at: new Date().toISOString(),
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -59,158 +111,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = async (userId: string) => {
-    try {
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', userId)
-        .maybeSingle();
-
-      if (profileError) throw profileError;
-      
-      if (profileData) {
-        setProfile(profileData as Profile);
-
-        // Update last login
-        await supabase
-          .from('profiles')
-          .update({ last_login: new Date().toISOString() })
-          .eq('user_id', userId);
-
-        // Fetch company and role if user has a company
-        if (profileData.company_id) {
-          const { data: companyData } = await supabase
-            .from('companies')
-            .select('*')
-            .eq('id', profileData.company_id)
-            .maybeSingle();
-
-          if (companyData) {
-            setCompany(companyData as Company);
-          }
-
-          const { data: roleData } = await supabase
-            .from('user_roles')
-            .select('*')
-            .eq('user_id', userId)
-            .eq('company_id', profileData.company_id)
-            .maybeSingle();
-
-          if (roleData) {
-            setUserRole(roleData as UserRole);
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-    }
-  };
-
-  const refreshProfile = async () => {
-    if (user) {
-      await fetchProfile(user.id);
-    }
-  };
-
   useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          // Use setTimeout to prevent potential deadlock
-          setTimeout(() => {
-            fetchProfile(session.user.id);
-          }, 0);
-        } else {
-          setProfile(null);
-          setCompany(null);
-          setUserRole(null);
-        }
-        
-        setLoading(false);
-      }
-    );
-
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        fetchProfile(session.user.id);
-      }
-      
+    // If Supabase is not configured, use mock data
+    if (!SUPABASE_CONFIGURED) {
+      console.log('🎭 Running in DEMO MODE - Supabase not configured');
+      setUser(mockUser);
+      setSession(mockSession);
+      setProfile(mockProfile);
+      setCompany(mockCompany);
+      setUserRole(mockUserRole);
       setLoading(false);
-    });
+      return;
+    }
 
-    return () => subscription.unsubscribe();
+    // Supabase mode would go here
+    // For now, just set loading to false
+    setLoading(false);
   }, []);
 
-  const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { error };
+  const signIn = async (_email: string, _password: string) => {
+    if (!SUPABASE_CONFIGURED) {
+      setUser(mockUser);
+      setSession(mockSession);
+      setProfile(mockProfile);
+      setCompany(mockCompany);
+      setUserRole(mockUserRole);
+      return { error: null };
+    }
+    return { error: new Error('Supabase not configured') };
   };
 
-  const signUp = async (email: string, password: string, fullName: string, companyName?: string) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: window.location.origin,
-        data: {
-          full_name: fullName,
-        },
-      },
-    });
-
-    if (error) return { error };
-
-    // If company name provided, create company after signup
-    if (data.user && companyName) {
-      // Wait a bit for the trigger to create the profile
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      const { data: companyData, error: companyError } = await supabase
-        .from('companies')
-        .insert({
-          name: companyName,
-          owner_id: data.user.id,
-        })
-        .select()
-        .single();
-
-      if (companyError) {
-        console.error('Error creating company:', companyError);
-      } else if (companyData) {
-        // Create owner role
-        await supabase
-          .from('user_roles')
-          .insert({
-            user_id: data.user.id,
-            company_id: companyData.id,
-            role: 'owner',
-          });
-
-        // Update profile with company
-        await supabase
-          .from('profiles')
-          .update({ company_id: companyData.id })
-          .eq('user_id', data.user.id);
-      }
+  const signUp = async (_email: string, _password: string, _fullName: string, _companyName?: string) => {
+    if (!SUPABASE_CONFIGURED) {
+      return { error: null };
     }
-
-    return { error: null };
+    return { error: new Error('Supabase not configured') };
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
     setUser(null);
     setSession(null);
     setProfile(null);
@@ -218,26 +156,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUserRole(null);
   };
 
-  const resetPassword = async (email: string) => {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    return { error };
+  const resetPassword = async (_email: string) => {
+    return { error: null };
   };
 
-  const updateProfile = async (updates: Partial<Profile>) => {
-    if (!user) return { error: new Error('No user logged in') };
+  const updateProfile = async (_updates: Partial<Profile>) => {
+    return { error: null };
+  };
 
-    const { error } = await supabase
-      .from('profiles')
-      .update(updates)
-      .eq('user_id', user.id);
-
-    if (!error) {
-      await refreshProfile();
-    }
-
-    return { error };
+  const refreshProfile = async () => {
+    // No-op in demo mode
   };
 
   return (
