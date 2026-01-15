@@ -12,6 +12,7 @@ interface DraggablePromptCardProps {
   onEdit: (project: ProjectData) => void;
   onCopy: (project: ProjectData) => void;
   onDelete: (project: ProjectData) => void;
+  onDuplicate?: (project: ProjectData) => void;
   folder?: FolderType | null;
   folders?: FolderType[];
   onMoveToFolder?: (projectId: string, folderId: string | null) => void;
@@ -26,6 +27,7 @@ const DraggablePromptCard = ({
   onEdit,
   onCopy,
   onDelete,
+  onDuplicate,
   folder,
   folders = [],
   onMoveToFolder,
@@ -69,6 +71,7 @@ const DraggablePromptCard = ({
         onEdit={onEdit}
         onCopy={onCopy}
         onDelete={onDelete}
+        onDuplicate={onDuplicate}
         folder={folder}
         folders={folders}
         onMoveToFolder={onMoveToFolder}

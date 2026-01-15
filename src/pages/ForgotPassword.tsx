@@ -1,43 +1,32 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Sparkles, ArrowLeft, CheckCircle2 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { Sparkles, ArrowLeft, AlertCircle } from 'lucide-react';
 import { AuthBackground } from '@/components/auth/AuthBackground';
-import { AuthInput } from '@/components/auth/AuthInput';
 import { AuthButton } from '@/components/auth/AuthButton';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
 const ForgotPassword = () => {
-  const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
-  const [sent, setSent] = useState(false);
-  const { resetPassword } = useAuth();
+  const { signIn } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleDemoAccess = async () => {
     setLoading(true);
-
-    const { error } = await resetPassword(email);
-
-    if (error) {
-      toast({
-        title: 'Erro',
-        description: error.message,
-        variant: 'destructive',
-      });
-    } else {
-      setSent(true);
-    }
-
+    await signIn('demo@devprompts.com', 'demo123');
+    toast({
+      title: 'Modo Demo Ativado!',
+      description: 'Você está usando o sistema em modo demonstração.',
+    });
+    navigate('/');
     setLoading(false);
   };
 
   return (
     <AuthBackground>
       <div className="w-full max-w-[450px] mx-auto px-4">
-        <div 
+        <div
           className="relative backdrop-blur-2xl rounded-3xl p-12 animate-fade-in"
           style={{
             background: 'linear-gradient(135deg, rgba(24,24,27,0.95), rgba(18,18,20,0.98))',
@@ -51,7 +40,7 @@ const ForgotPassword = () => {
         >
           {/* Logo */}
           <div className="flex flex-col items-center mb-8">
-            <div 
+            <div
               className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#00FF94] to-[#00D97E] flex items-center justify-center mb-4"
               style={{
                 boxShadow: '0 8px 32px rgba(0,255,148,0.4)',
@@ -64,75 +53,65 @@ const ForgotPassword = () => {
             </h1>
           </div>
 
-          {sent ? (
-            // Success state
-            <div className="text-center animate-fade-in">
-              <div 
-                className="w-20 h-20 rounded-full bg-[#00FF94]/20 flex items-center justify-center mx-auto mb-6"
-                style={{
-                  boxShadow: '0 0 40px rgba(0,255,148,0.3)',
-                }}
-              >
-                <CheckCircle2 className="w-10 h-10 text-[#00FF94]" />
-              </div>
-              <h2 className="text-2xl font-bold text-white mb-2">
-                E-mail enviado!
-              </h2>
-              <p className="text-gray-400 mb-8">
-                Verifique sua caixa de entrada para instruções de recuperação de senha.
-              </p>
-              <AuthButton onClick={() => navigate('/login')}>
-                Voltar ao login
-              </AuthButton>
+          {/* Back link */}
+          <Link
+            to="/login"
+            className="inline-flex items-center gap-2 text-gray-400 hover:text-white text-sm mb-6 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Voltar ao login
+          </Link>
+
+          {/* Demo Mode Info */}
+          <div
+            className="flex items-start gap-3 mb-8 p-4 rounded-xl"
+            style={{
+              background: 'rgba(0,255,148,0.1)',
+              border: '1px solid rgba(0,255,148,0.2)',
+            }}
+          >
+            <AlertCircle className="w-5 h-5 text-[#00FF94] flex-shrink-0 mt-0.5" />
+            <div className="text-sm text-gray-300">
+              <p className="font-semibold text-[#00FF94] mb-1">Modo Demo Ativo</p>
+              <p>No modo demonstração, não é necessário recuperar senha. Você pode acessar diretamente o sistema.</p>
             </div>
-          ) : (
-            // Form state
-            <>
-              {/* Back link */}
-              <Link 
-                to="/login"
-                className="inline-flex items-center gap-2 text-gray-400 hover:text-white text-sm mb-6 transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Voltar ao login
-              </Link>
+          </div>
 
-              {/* Title */}
-              <div className="mb-8">
-                <h2 
-                  className="text-3xl font-bold text-white mb-2"
-                  style={{ letterSpacing: '-0.02em' }}
-                >
-                  Recuperar senha
-                </h2>
-                <p className="text-gray-400 text-base">
-                  Digite seu e-mail e enviaremos instruções para recuperar sua senha.
-                </p>
-              </div>
+          {/* Title */}
+          <div className="mb-8">
+            <h2
+              className="text-3xl font-bold text-white mb-2"
+              style={{ letterSpacing: '-0.02em' }}
+            >
+              Recuperar senha
+            </h2>
+            <p className="text-gray-400 text-base">
+              Esta funcionalidade está disponível apenas com Supabase configurado.
+            </p>
+          </div>
 
-              {/* Form */}
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <AuthInput
-                  label="E-mail"
-                  type="email"
-                  icon={Mail}
-                  placeholder="seu@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  autoComplete="email"
-                />
+          {/* Demo Access Button */}
+          <button
+            type="button"
+            onClick={handleDemoAccess}
+            disabled={loading}
+            className="w-full py-4 px-6 rounded-xl text-base font-semibold transition-all duration-300 mb-4"
+            style={{
+              background: 'linear-gradient(135deg, rgba(0,255,148,0.15) 0%, rgba(0,255,148,0.05) 100%)',
+              border: '2px solid rgba(0,255,148,0.3)',
+              color: '#00FF94',
+            }}
+          >
+            🚀 Acessar Modo Demo
+          </button>
 
-                <AuthButton 
-                  type="submit" 
-                  loading={loading} 
-                  loadingText="Enviando..."
-                >
-                  Enviar instruções
-                </AuthButton>
-              </form>
-            </>
-          )}
+          {/* Back to Login Button */}
+          <AuthButton
+            variant="secondary"
+            onClick={() => navigate('/login')}
+          >
+            Voltar ao Login
+          </AuthButton>
 
           {/* Footer */}
           <p className="text-center text-gray-500 text-xs mt-8">

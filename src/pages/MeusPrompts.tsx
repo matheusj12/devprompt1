@@ -1,24 +1,24 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  DndContext, 
-  DragOverlay, 
-  closestCenter, 
-  KeyboardSensor, 
-  PointerSensor, 
-  useSensor, 
+import {
+  DndContext,
+  DragOverlay,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
   useSensors,
   DragStartEvent,
   DragEndEvent,
   DragOverEvent,
 } from '@dnd-kit/core';
-import { 
-  Search, 
-  Plus, 
-  Download, 
-  Upload, 
-  ArrowUpDown, 
-  X, 
+import {
+  Search,
+  Plus,
+  Download,
+  Upload,
+  ArrowUpDown,
+  X,
   FileText,
   Folder,
   FolderOpen,
@@ -27,19 +27,19 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { getProjects, deleteProject, importProject, saveProject } from '@/lib/storage';
-import { 
-  getFolders, 
-  createFolder, 
-  updateFolder, 
+import {
+  getFolders,
+  createFolder,
+  updateFolder,
   deleteFolder as deleteFolderStorage,
   getPromptFolder,
   setPromptFolder,
@@ -64,14 +64,14 @@ type SortOption = 'recent' | 'oldest' | 'az' | 'za';
 const MeusPrompts = () => {
   const navigate = useNavigate();
   const { loadProject } = useProject();
-  
+
   // Projects state
   const [projects, setProjects] = useState<ProjectData[]>(getProjects());
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('recent');
   const [previewProject, setPreviewProject] = useState<ProjectData | null>(null);
   const [deleteProjectData, setDeleteProjectData] = useState<ProjectData | null>(null);
-  
+
   // Folders state
   const [folders, setFolders] = useState<FolderType[]>(getFolders());
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
@@ -138,7 +138,7 @@ const MeusPrompts = () => {
     // Apply search filter
     if (searchTerm) {
       const search = searchTerm.toLowerCase();
-      result = result.filter(p => 
+      result = result.filter(p =>
         p.identity.name.toLowerCase().includes(search) ||
         p.identity.companyName.toLowerCase().includes(search) ||
         p.finalization.tags?.some(t => t.toLowerCase().includes(search))
@@ -177,7 +177,7 @@ const MeusPrompts = () => {
     const { active } = event;
     setActiveId(active.id as string);
     setActiveType(active.data.current?.type || 'prompt');
-    
+
     // Haptic feedback for mobile
     if ('vibrate' in navigator) {
       navigator.vibrate(50);
@@ -191,7 +191,7 @@ const MeusPrompts = () => {
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    
+
     if (!over) {
       setActiveId(null);
       setActiveType(null);
@@ -246,6 +246,30 @@ const MeusPrompts = () => {
 
   const handleDelete = (project: ProjectData) => {
     setDeleteProjectData(project);
+  };
+
+  const handleDuplicate = (project: ProjectData) => {
+    const duplicatedProject: ProjectData = {
+      ...project,
+      id: crypto.randomUUID(),
+      identity: {
+        ...project.identity,
+        name: `${project.identity.name} (Cópia)`,
+      },
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    saveProject(duplicatedProject);
+
+    // Copy folder assignment
+    const currentFolderId = getPromptFolder(project.id);
+    if (currentFolderId) {
+      setPromptFolder(duplicatedProject.id, currentFolderId);
+    }
+
+    refreshProjects();
+    refreshFolders();
+    toast.success('✓ Prompt duplicado com sucesso!');
   };
 
   const confirmDelete = () => {
@@ -331,16 +355,16 @@ const MeusPrompts = () => {
     if (deletingFolder) {
       const promptCount = countPromptsInFolder(deletingFolder.id);
       const movedCount = deleteFolderStorage(deletingFolder.id);
-      
+
       refreshFolders();
       refreshProjects(); // Refresh to update folder counts
-      
+
       if (selectedFolderId === deletingFolder.id) {
         setSelectedFolderId('uncategorized'); // Redirect to "Sem Pasta" to see moved prompts
       }
-      
+
       setDeletingFolder(null);
-      
+
       if (movedCount > 0) {
         toast.success(
           `✓ Pasta deletada. ${movedCount} prompt${movedCount > 1 ? 's' : ''} movido${movedCount > 1 ? 's' : ''} para "Sem Pasta"`,
@@ -395,7 +419,7 @@ const MeusPrompts = () => {
     >
       <div className="min-h-screen bg-background">
         {/* Premium Authenticated Header */}
-        <AuthHeader 
+        <AuthHeader
           currentFolderName={getFolderTitle()}
           showBreadcrumb={!!selectedFolderId}
           onNewPrompt={() => navigate('/')}
@@ -420,7 +444,7 @@ const MeusPrompts = () => {
           />
 
           {/* Main Content */}
-          <main 
+          <main
             className="flex-1 transition-all duration-300"
             style={{
               marginLeft: isSidebarCollapsed ? '0' : '280px',
@@ -430,7 +454,7 @@ const MeusPrompts = () => {
               {/* Page Header */}
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div className="flex items-center gap-4">
-                  <div 
+                  <div
                     className="w-14 h-14 rounded-xl flex items-center justify-center"
                     style={{
                       background: 'linear-gradient(135deg, rgba(0,255,148,0.2) 0%, rgba(0,255,148,0.05) 100%)',
@@ -449,24 +473,24 @@ const MeusPrompts = () => {
                 </div>
 
                 <div className="flex gap-2">
-                  <Button 
-                    onClick={() => navigate('/')} 
+                  <Button
+                    onClick={() => navigate('/')}
                     className="gap-2 bg-primary text-primary-foreground hover:bg-primary/80 shadow-neon hover:shadow-neon-intense transition-all duration-300"
                   >
                     <Plus className="w-4 h-4" />
                     Novo Prompt
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={handleImport} 
+                  <Button
+                    variant="outline"
+                    onClick={handleImport}
                     className="gap-2 bg-transparent border-border hover:border-primary hover:bg-primary/10 text-muted-foreground hover:text-primary"
                   >
                     <Upload className="w-4 h-4" />
                     <span className="hidden sm:inline">Importar</span>
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={handleExportAll} 
+                  <Button
+                    variant="outline"
+                    onClick={handleExportAll}
                     className="gap-2 bg-transparent border-border hover:border-primary hover:bg-primary/10 text-muted-foreground hover:text-primary"
                   >
                     <Download className="w-4 h-4" />
@@ -520,14 +544,14 @@ const MeusPrompts = () => {
               {/* Content */}
               {projects.length === 0 ? (
                 // Empty State - No Projects
-                <div 
+                <div
                   className="p-16 text-center rounded-2xl"
                   style={{
                     background: 'linear-gradient(135deg, rgba(24,24,27,0.6) 0%, rgba(18,18,20,0.4) 100%)',
                     border: '2px dashed rgba(0,255,148,0.3)',
                   }}
                 >
-                  <div 
+                  <div
                     className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6"
                     style={{ background: 'rgba(82,82,91,0.3)' }}
                   >
@@ -539,8 +563,8 @@ const MeusPrompts = () => {
                   <p className="text-gray-400 mb-8">
                     Crie seu primeiro prompt de IA profissional!
                   </p>
-                  <Button 
-                    size="lg" 
+                  <Button
+                    size="lg"
                     onClick={() => navigate('/')}
                     className="gap-2 font-bold text-black"
                     style={{
@@ -554,14 +578,14 @@ const MeusPrompts = () => {
                 </div>
               ) : filteredAndSortedProjects.length === 0 ? (
                 // Empty State - No Results
-                <div 
+                <div
                   className="p-16 text-center rounded-2xl"
                   style={{
                     background: 'linear-gradient(135deg, rgba(24,24,27,0.6) 0%, rgba(18,18,20,0.4) 100%)',
                     border: '2px dashed rgba(113,113,122,0.3)',
                   }}
                 >
-                  <div 
+                  <div
                     className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6"
                     style={{ background: 'rgba(82,82,91,0.3)' }}
                   >
@@ -572,7 +596,7 @@ const MeusPrompts = () => {
                     )}
                   </div>
                   <h2 className="text-xl font-semibold text-white mb-3">
-                    {selectedFolderId && selectedFolderId !== 'uncategorized' 
+                    {selectedFolderId && selectedFolderId !== 'uncategorized'
                       ? 'Nenhum prompt nesta pasta ainda'
                       : 'Nenhum prompt encontrado'
                     }
@@ -584,8 +608,8 @@ const MeusPrompts = () => {
                     }
                   </p>
                   {selectedFolderId && selectedFolderId !== 'uncategorized' ? (
-                    <Button 
-                      size="lg" 
+                    <Button
+                      size="lg"
                       onClick={() => navigate('/')}
                       className="gap-2 font-bold text-black"
                       style={{
@@ -597,8 +621,8 @@ const MeusPrompts = () => {
                       Criar Primeiro Prompt
                     </Button>
                   ) : (
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       onClick={() => setSearchTerm('')}
                       className="border-zinc-700 hover:border-[#00FF94] hover:bg-[#00FF94]/10 text-gray-400 hover:text-[#00FF94]"
                     >
@@ -617,6 +641,7 @@ const MeusPrompts = () => {
                       onEdit={handleEdit}
                       onCopy={handleCopy}
                       onDelete={handleDelete}
+                      onDuplicate={handleDuplicate}
                       folder={getProjectFolder(project.id)}
                       folders={folders}
                       onMoveToFolder={handleMoveToFolder}

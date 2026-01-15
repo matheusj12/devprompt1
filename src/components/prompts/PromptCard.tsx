@@ -1,4 +1,4 @@
-import { Eye, Pencil, Copy, Trash2, Building2, Target, Calendar, Folder } from 'lucide-react';
+import { Eye, Pencil, Copy, Trash2, Building2, Target, Calendar, Folder, Files } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ProjectData, TEMPLATES } from '@/types/prompt';
 import { Folder as FolderType } from '@/types/folder';
@@ -12,18 +12,20 @@ interface PromptCardProps {
   onEdit: (project: ProjectData) => void;
   onCopy: (project: ProjectData) => void;
   onDelete: (project: ProjectData) => void;
+  onDuplicate?: (project: ProjectData) => void;
   folder?: FolderType | null;
   folders?: FolderType[];
   onMoveToFolder?: (projectId: string, folderId: string | null) => void;
   onCreateFolder?: () => void;
 }
 
-const PromptCard = ({ 
-  project, 
-  onView, 
-  onEdit, 
-  onCopy, 
+const PromptCard = ({
+  project,
+  onView,
+  onEdit,
+  onCopy,
   onDelete,
+  onDuplicate,
   folder,
   folders = [],
   onMoveToFolder,
@@ -49,9 +51,9 @@ const PromptCard = ({
       {/* Header */}
       <div className="p-5 pb-4">
         <div className="flex items-start gap-3 mb-4">
-          <div 
+          <div
             className="w-12 h-12 rounded-full flex items-center justify-center text-xl shrink-0 transition-all duration-300 group-hover:scale-110"
-            style={{ 
+            style={{
               backgroundColor: `${color}20`,
               boxShadow: `0 0 15px ${color}40`
             }}
@@ -66,7 +68,7 @@ const PromptCard = ({
               {template?.name || 'Personalizado'}
             </p>
           </div>
-          
+
           {/* Folder Dropdown */}
           {onMoveToFolder && onCreateFolder && (
             <FolderDropdown
@@ -80,7 +82,7 @@ const PromptCard = ({
 
         {/* Folder Badge */}
         {folder && (
-          <div 
+          <div
             className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium mb-3 transition-all duration-300 hover:opacity-80"
             style={{
               background: `${folder.color}20`,
@@ -113,7 +115,7 @@ const PromptCard = ({
         {project.finalization.tags && project.finalization.tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-3">
             {project.finalization.tags.slice(0, 3).map((tag, i) => (
-              <span 
+              <span
                 key={i}
                 className="px-2.5 py-0.5 bg-muted/50 text-muted-foreground rounded-full text-xs border border-border"
               >
@@ -142,7 +144,7 @@ const PromptCard = ({
       </div>
 
       {/* Actions */}
-      <div className="grid grid-cols-4 border-t border-border">
+      <div className="grid grid-cols-5 border-t border-border">
         <Button
           variant="ghost"
           className="rounded-none h-11 gap-1.5 text-xs font-medium text-muted-foreground hover:text-primary hover:bg-primary/10"
@@ -167,6 +169,16 @@ const PromptCard = ({
           <Copy className="w-4 h-4" />
           <span className="hidden sm:inline">Copiar</span>
         </Button>
+        {onDuplicate && (
+          <Button
+            variant="ghost"
+            className="rounded-none h-11 gap-1.5 text-xs font-medium text-muted-foreground hover:text-blue-400 hover:bg-blue-500/10 border-l border-border"
+            onClick={() => onDuplicate(project)}
+          >
+            <Files className="w-4 h-4" />
+            <span className="hidden sm:inline">Duplicar</span>
+          </Button>
+        )}
         <Button
           variant="ghost"
           className="rounded-none h-11 gap-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 hover:text-destructive border-l border-border"

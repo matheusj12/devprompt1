@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ProjectProvider } from "@/contexts/ProjectContext";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import Home from "./pages/Home";
 import FormWizard from "./pages/FormWizard";
 import Preview from "./pages/Preview";
@@ -26,17 +25,17 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
+              {/* Public routes - Demo mode */}
+              <Route path="/" element={<Home />} />
+              <Route path="/wizard" element={<FormWizard />} />
+              <Route path="/preview" element={<Preview />} />
+              <Route path="/meus-prompts" element={<MeusPrompts />} />
+
               {/* Auth routes */}
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
-              
-              {/* Protected routes */}
-              <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-              <Route path="/wizard" element={<ProtectedRoute><FormWizard /></ProtectedRoute>} />
-              <Route path="/preview" element={<ProtectedRoute><Preview /></ProtectedRoute>} />
-              <Route path="/meus-prompts" element={<ProtectedRoute><MeusPrompts /></ProtectedRoute>} />
-              
+
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
@@ -47,3 +46,4 @@ const App = () => (
 );
 
 export default App;
+
