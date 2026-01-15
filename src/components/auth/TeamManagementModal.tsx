@@ -1,24 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
 } from '@/components/ui/dialog';
-import { 
-  Users, 
-  Mail, 
-  Clock, 
-  MoreVertical, 
-  Crown, 
-  Send, 
+import {
+  Users,
+  Mail,
+  Clock,
+  MoreVertical,
+  Crown,
+  Send,
   RefreshCw,
   X,
   UserPlus,
   Check
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { AuthInput } from './AuthInput';
 import { AuthButton } from './AuthButton';
 import { useToast } from '@/hooks/use-toast';
@@ -71,7 +71,7 @@ export const TeamManagementModal: React.FC<TeamManagementModalProps> = ({
   const [members, setMembers] = useState<Member[]>([]);
   const [invites, setInvites] = useState<Invite[]>([]);
   const [loading, setLoading] = useState(false);
-  
+
   // Invite form state
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState<'admin' | 'member' | 'viewer'>('member');
@@ -81,7 +81,7 @@ export const TeamManagementModal: React.FC<TeamManagementModalProps> = ({
   const isOwner = userRole?.role === 'owner';
 
   const fetchMembers = async () => {
-    if (!company) return;
+    if (!company || !isSupabaseConfigured || !supabase) return;
     setLoading(true);
 
     try {
@@ -123,7 +123,7 @@ export const TeamManagementModal: React.FC<TeamManagementModalProps> = ({
   };
 
   const fetchInvites = async () => {
-    if (!company) return;
+    if (!company || !isSupabaseConfigured || !supabase) return;
 
     try {
       const { data, error } = await supabase
@@ -156,7 +156,7 @@ export const TeamManagementModal: React.FC<TeamManagementModalProps> = ({
 
   const handleSendInvite = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!company || !user) return;
+    if (!company || !user || !isSupabaseConfigured || !supabase) return;
 
     setInviteLoading(true);
 
@@ -195,6 +195,7 @@ export const TeamManagementModal: React.FC<TeamManagementModalProps> = ({
   };
 
   const handleCancelInvite = async (inviteId: string) => {
+    if (!isSupabaseConfigured || !supabase) return;
     try {
       const { error } = await supabase
         .from('company_members')
@@ -219,7 +220,7 @@ export const TeamManagementModal: React.FC<TeamManagementModalProps> = ({
   };
 
   const handleRemoveMember = async (userId: string) => {
-    if (!company) return;
+    if (!company || !isSupabaseConfigured || !supabase) return;
 
     try {
       await supabase
@@ -249,7 +250,7 @@ export const TeamManagementModal: React.FC<TeamManagementModalProps> = ({
   };
 
   const handleChangeRole = async (userId: string, newRole: Member['role']) => {
-    if (!company) return;
+    if (!company || !isSupabaseConfigured || !supabase) return;
 
     try {
       const { error } = await supabase
@@ -306,7 +307,7 @@ export const TeamManagementModal: React.FC<TeamManagementModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent 
+      <DialogContent
         className="max-w-[800px] max-h-[600px] p-0 bg-transparent border-0 overflow-hidden"
         style={{
           background: 'linear-gradient(135deg, rgba(24,24,27,0.98), rgba(18,18,20,0.95))',
@@ -335,18 +336,18 @@ export const TeamManagementModal: React.FC<TeamManagementModalProps> = ({
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
                   "py-4 font-medium text-sm transition-all border-b-[3px] border-transparent",
-                  activeTab === tab.id 
-                    ? "text-white border-[#00FF94]" 
+                  activeTab === tab.id
+                    ? "text-white border-[#00FF94]"
                     : "text-gray-400 hover:text-gray-200"
                 )}
               >
                 {tab.label}
                 {'count' in tab && tab.count > 0 && (
-                  <span 
+                  <span
                     className={cn(
                       "ml-2 px-2 py-0.5 rounded-full text-xs",
-                      activeTab === tab.id 
-                        ? "bg-[#00FF94]/20 text-[#00FF94]" 
+                      activeTab === tab.id
+                        ? "bg-[#00FF94]/20 text-[#00FF94]"
                         : "bg-zinc-700 text-gray-300"
                     )}
                   >
@@ -382,10 +383,10 @@ export const TeamManagementModal: React.FC<TeamManagementModalProps> = ({
                     )}
                   >
                     <div className="flex items-center gap-4">
-                      <div 
+                      <div
                         className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
                         style={{
-                          background: member.avatar_url 
+                          background: member.avatar_url
                             ? `url(${member.avatar_url}) center/cover`
                             : 'linear-gradient(135deg, #00FF94, #00D97E)',
                         }}
@@ -414,7 +415,7 @@ export const TeamManagementModal: React.FC<TeamManagementModalProps> = ({
                     <div className="flex items-center gap-3">
                       {/* Role selector/badge */}
                       {member.role === 'owner' ? (
-                        <span 
+                        <span
                           className="px-3 py-1.5 rounded-full text-xs font-semibold"
                           style={{
                             background: 'rgba(234,179,8,0.2)',
@@ -438,7 +439,7 @@ export const TeamManagementModal: React.FC<TeamManagementModalProps> = ({
                           </SelectContent>
                         </Select>
                       ) : (
-                        <span 
+                        <span
                           className="px-3 py-1.5 rounded-full text-xs font-semibold"
                           style={{
                             background: 'rgba(0,255,148,0.2)',
@@ -457,11 +458,11 @@ export const TeamManagementModal: React.FC<TeamManagementModalProps> = ({
                               <MoreVertical className="w-4 h-4 text-gray-400" />
                             </button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent 
+                          <DropdownMenuContent
                             align="end"
                             className="bg-zinc-800 border-zinc-700"
                           >
-                            <DropdownMenuItem 
+                            <DropdownMenuItem
                               onClick={() => handleRemoveMember(member.user_id)}
                               className="text-red-400 focus:text-red-400 focus:bg-red-500/10"
                             >
@@ -507,7 +508,7 @@ export const TeamManagementModal: React.FC<TeamManagementModalProps> = ({
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <span 
+                      <span
                         className="px-3 py-1.5 rounded-full text-xs font-semibold bg-yellow-500/20 text-yellow-400"
                       >
                         Pendente
@@ -587,8 +588,8 @@ export const TeamManagementModal: React.FC<TeamManagementModalProps> = ({
                 />
               </div>
 
-              <AuthButton 
-                type="submit" 
+              <AuthButton
+                type="submit"
                 loading={inviteLoading}
                 loadingText="Enviando..."
                 className="mt-4"

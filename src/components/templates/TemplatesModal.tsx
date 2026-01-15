@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { 
-  X, 
-  Sparkles, 
-  Star, 
-  Users, 
-  Eye, 
+import {
+  X,
+  Sparkles,
+  Star,
+  Users,
+  Eye,
   LayoutGrid,
   HeartPulse,
   Scale,
@@ -19,7 +19,7 @@ import {
   Shield,
   Clock,
 } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -81,6 +81,14 @@ const TemplatesModal = ({ isOpen, onClose, onSelectTemplate }: TemplatesModalPro
 
   const fetchTemplates = async () => {
     setLoading(true);
+
+    if (!isSupabaseConfigured || !supabase) {
+      // Use mock data in demo mode
+      setTemplates([]);
+      setLoading(false);
+      return;
+    }
+
     try {
       const { data, error } = await supabase
         .from('prompt_templates')
@@ -90,7 +98,7 @@ const TemplatesModal = ({ isOpen, onClose, onSelectTemplate }: TemplatesModalPro
         .order('usage_count', { ascending: false });
 
       if (error) throw error;
-      
+
       // Type assertion to handle JSONB fields
       const typedData = (data || []).map(item => ({
         ...item,
@@ -100,7 +108,7 @@ const TemplatesModal = ({ isOpen, onClose, onSelectTemplate }: TemplatesModalPro
         communication_rules: item.communication_rules as string[] | null,
         critical_reminders: item.critical_reminders as string[] | null,
       }));
-      
+
       setTemplates(typedData);
     } catch (error) {
       console.error('Error fetching templates:', error);
@@ -114,14 +122,16 @@ const TemplatesModal = ({ isOpen, onClose, onSelectTemplate }: TemplatesModalPro
   );
 
   const handleUseTemplate = async (template: PromptTemplate) => {
-    // Increment usage count
-    try {
-      await supabase
-        .from('prompt_templates')
-        .update({ usage_count: (template.usage_count || 0) + 1 })
-        .eq('id', template.id);
-    } catch (error) {
-      console.error('Error updating usage count:', error);
+    // Increment usage count only if supabase is configured
+    if (isSupabaseConfigured && supabase) {
+      try {
+        await supabase
+          .from('prompt_templates')
+          .update({ usage_count: (template.usage_count || 0) + 1 })
+          .eq('id', template.id);
+      } catch (error) {
+        console.error('Error updating usage count:', error);
+      }
     }
 
     onSelectTemplate(template);
@@ -142,7 +152,7 @@ const TemplatesModal = ({ isOpen, onClose, onSelectTemplate }: TemplatesModalPro
   return (
     <>
       <Dialog open={isOpen && !previewTemplate} onOpenChange={(open) => !open && onClose()}>
-        <DialogContent 
+        <DialogContent
           className="max-w-5xl max-h-[90vh] p-0 gap-0 overflow-hidden"
           style={{
             background: 'linear-gradient(135deg, rgba(24,24,27,0.98) 0%, rgba(18,18,20,0.95) 100%)',
@@ -151,11 +161,11 @@ const TemplatesModal = ({ isOpen, onClose, onSelectTemplate }: TemplatesModalPro
           }}
         >
           <DialogTitle className="sr-only">Escolha um Template</DialogTitle>
-          
+
           {/* Header */}
           <div className="p-6 pb-4 border-b border-zinc-800">
             <div className="flex items-center gap-3 mb-2">
-              <div 
+              <div
                 className="p-2 rounded-xl"
                 style={{
                   background: 'linear-gradient(135deg, rgba(0,255,148,0.2) 0%, rgba(0,255,148,0.05) 100%)',
@@ -184,8 +194,8 @@ const TemplatesModal = ({ isOpen, onClose, onSelectTemplate }: TemplatesModalPro
                     onClick={() => setSelectedCategory(cat.id)}
                     className={cn(
                       "flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap transition-all duration-200 border-b-2 -mb-px",
-                      isActive 
-                        ? "text-[#00FF94] border-[#00FF94]" 
+                      isActive
+                        ? "text-[#00FF94] border-[#00FF94]"
                         : "text-gray-400 border-transparent hover:text-gray-200"
                     )}
                   >
@@ -229,7 +239,7 @@ const TemplatesModal = ({ isOpen, onClose, onSelectTemplate }: TemplatesModalPro
                     >
                       {/* Featured Badge */}
                       {template.is_featured && (
-                        <div 
+                        <div
                           className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide"
                           style={{
                             background: 'linear-gradient(135deg, #FACC15 0%, #F59E0B 100%)',
@@ -242,7 +252,7 @@ const TemplatesModal = ({ isOpen, onClose, onSelectTemplate }: TemplatesModalPro
                       )}
 
                       {/* Icon */}
-                      <div 
+                      <div
                         className="w-16 h-16 rounded-xl flex items-center justify-center text-3xl mb-4 transition-all duration-300 group-hover:scale-110"
                         style={{
                           background: 'rgba(0,255,148,0.1)',
@@ -261,7 +271,7 @@ const TemplatesModal = ({ isOpen, onClose, onSelectTemplate }: TemplatesModalPro
                       </p>
 
                       {/* Usage Badge */}
-                      <div 
+                      <div
                         className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium mb-4"
                         style={{
                           background: 'rgba(0,255,148,0.1)',
@@ -321,7 +331,7 @@ const TemplatesModal = ({ isOpen, onClose, onSelectTemplate }: TemplatesModalPro
 
       {/* Preview Modal */}
       <Dialog open={!!previewTemplate} onOpenChange={(open) => !open && setPreviewTemplate(null)}>
-        <DialogContent 
+        <DialogContent
           className="max-w-2xl max-h-[90vh] p-0 gap-0 overflow-hidden"
           style={{
             background: 'linear-gradient(135deg, rgba(24,24,27,0.98) 0%, rgba(18,18,20,0.95) 100%)',
@@ -332,13 +342,13 @@ const TemplatesModal = ({ isOpen, onClose, onSelectTemplate }: TemplatesModalPro
           <DialogTitle className="sr-only">
             Preview: {previewTemplate?.name}
           </DialogTitle>
-          
+
           {previewTemplate && (
             <>
               {/* Preview Header */}
               <div className="p-6 border-b border-zinc-800">
                 <div className="flex items-center gap-4">
-                  <div 
+                  <div
                     className="w-16 h-16 rounded-xl flex items-center justify-center text-3xl"
                     style={{
                       background: 'linear-gradient(135deg, rgba(0,255,148,0.2) 0%, rgba(0,255,148,0.05) 100%)',
@@ -414,7 +424,7 @@ const TemplatesModal = ({ isOpen, onClose, onSelectTemplate }: TemplatesModalPro
                       </h3>
                       <div className="flex flex-wrap gap-2">
                         {previewTemplate.available_tools.map((tool, i) => (
-                          <span 
+                          <span
                             key={i}
                             className="px-3 py-1.5 rounded-lg text-xs font-medium"
                             style={{
@@ -437,7 +447,7 @@ const TemplatesModal = ({ isOpen, onClose, onSelectTemplate }: TemplatesModalPro
                         <Shield className="w-4 h-4 text-red-400" />
                         Lembretes Críticos
                       </h3>
-                      <div 
+                      <div
                         className="p-4 rounded-lg space-y-2"
                         style={{
                           background: 'rgba(220,38,38,0.1)',
